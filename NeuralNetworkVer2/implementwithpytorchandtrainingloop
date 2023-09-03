@@ -1,0 +1,63 @@
+# %%
+import torch.nn as nn
+import numpy as np
+
+# %%
+model = nn.Sequential(
+    nn.Linear(4,2),
+    nn.Linear(2,1)
+)
+
+
+# %%
+def mean_squared_loss(prediction, target):
+    return np.mean(prediction - target)**2;
+
+
+# %%
+criterion = nn.MSELoss();
+feature = np.array([[0, 0, 0.5, 1],
+                    [1, 0, 1, 2],
+                    [2, 0, 0, 1],
+                    [1, 0, 1, 0],
+                    [2, 0, 1, 1]], dtype=np.float32)
+target=np.array([[0.036], [0.133], [0.234], [0.076], [0.17]], dtype=np.float32)
+
+
+# %%
+from torch.utils.data import TensorDataset, DataLoader;
+import torch
+
+# %%
+dataset = TensorDataset(torch.tensor(feature).float(), torch.tensor(target).float())
+dataloader = DataLoader(dataset, batch_size=4, shuffle=True);
+
+# %%
+import torch.optim as optim
+
+
+# %%
+optimizer = optim.SGD(model.parameters(), lr = 0.001)
+
+# %%
+num_epochs = 1;
+for epoch in range(num_epochs):
+    for data in dataloader:
+        # set all gradient to zero
+        optimizer.zero_grad(); 
+        # get feture and target in row:
+        feature, target = data;
+        # run forward pass
+        prediction = model(feature);
+        # compute loss and gradient:
+        loss = criterion(prediction, target);
+        loss.backward()
+        # update parameter:
+        optimizer.step()
+        print(model[epoch].weight);
+        
+
+# %%
+
+
+
